@@ -35,6 +35,7 @@
       </el-table-column>
     </el-table>
   </div>
+  <ChartCard title="产品多指标对比" :option="multiIndicatorOption"></ChartCard>
 </template>
 
 <script setup>
@@ -98,14 +99,65 @@ const chartOption = ref({
 // 表格数据
 const tableData = ref([])
 
-// 获取对比数据
+// 新增多指标对比图表配置
+const multiIndicatorOption = ref({
+  title: {
+    text: '产品多指标对比',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { type: 'shadow' }
+  },
+  legend: {
+    bottom: 0
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '15%',
+    top: '10%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: []
+  },
+  yAxis: [
+    {
+      type: 'value',
+      name: '收益率/回撤/费率(%)',
+      position: 'left'
+    },
+    {
+      type: 'value',
+      name: '夏普比率',
+      position: 'right',
+      axisLine: { lineStyle: { color: '#e6a23c' } },
+      axisLabel: { color: '#e6a23c' }
+    }
+  ],
+  series: [
+    { name: '年化收益率(%)', type: 'bar', yAxisIndex: 0, data: [], itemStyle: { color: '#67c23a' } },
+    { name: '最大回撤(%)', type: 'bar', yAxisIndex: 0, data: [], itemStyle: { color: '#f56c6c' } },
+    { name: '费率(%)', type: 'bar', yAxisIndex: 0, data: [], itemStyle: { color: '#909399' } },
+    { name: '夏普比率', type: 'line', yAxisIndex: 1, data: [], itemStyle: { color: '#e6a23c' }, smooth: true }
+  ]
+})
+
+// 重构getComparisonData方法
 const getComparisonData = () => {
   getProductComparison().then(res => {
     tableData.value = res
-    // 更新图表数据
     chartOption.value.xAxis.data = res.map(item => item.productName)
     chartOption.value.series[0].data = res.map(item => Number(item.purchaseAmount))
     chartOption.value.series[1].data = res.map(item => Number(item.totalIncome))
+    // 多指标图表数据
+    multiIndicatorOption.value.xAxis.data = res.map(item => item.productName)
+    multiIndicatorOption.value.series[0].data = res.map(item => Number(item.annualizedReturn))
+    multiIndicatorOption.value.series[1].data = res.map(item => Number(item.maxDrawdown))
+    multiIndicatorOption.value.series[2].data = res.map(item => Number(item.feeRate))
+    multiIndicatorOption.value.series[3].data = res.map(item => Number(item.sharpeRatio))
   })
 }
 

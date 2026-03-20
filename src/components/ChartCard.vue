@@ -1,12 +1,12 @@
 <template>
   <div class="chart-card">
     <div class="card-header">{{ title }}</div>
-    <div class="card-body" ref="chartRef"></div>
+    <div class="card-body" ref="chartRef" :style="{ width: '100%', height: height + 'px' }"></div>
   </div>
 </template>
 
 <script setup>
-import { defineProps, ref, onMounted, watch } from 'vue'
+import { defineProps, ref, watch, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
 
 const props = defineProps({
@@ -14,17 +14,16 @@ const props = defineProps({
     type: String,
     required: true
   },
-  option: {
-    type: Object,
-    required: true
-  }
+  option: { type: Object, required: true },
+  height: { type: Number, default: 400 }
 })
 
 const chartRef = ref(null)
 let chartInstance = null
 
-// 初始化图表
+// 初始化图表（确保DOM挂载）
 const initChart = () => {
+  if (!chartRef.value) return
   if (chartInstance) {
     chartInstance.dispose()
   }
@@ -32,7 +31,14 @@ const initChart = () => {
   chartInstance.setOption(props.option)
 }
 
-// 监听窗口大小变化
+// 监听option变化，更新图表
+watch(() => props.option, (newOption) => {
+  if (chartInstance) {
+    chartInstance.setOption(newOption)
+  }
+}, { deep: true })
+
+// 窗口大小变化时重绘
 const resizeChart = () => {
   if (chartInstance) {
     chartInstance.resize()
@@ -44,15 +50,12 @@ onMounted(() => {
   window.addEventListener('resize', resizeChart)
 })
 
-watch(() => props.option, () => {
-  initChart()
-}, { deep: true })
-
 // 组件卸载时销毁图表
 onUnmounted(() => {
   window.removeEventListener('resize', resizeChart)
   if (chartInstance) {
-    chartInstance.dispose()
+    chartInstance.dispose() // 销毁图表，避免内存泄漏
+    chartInstance = null
   }
 })
 </script>

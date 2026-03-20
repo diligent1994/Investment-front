@@ -39,7 +39,7 @@ export function getProductById(id) {
 }
 
 // 获取所有产品
-export function getAllProducts() {
+export function getProductList() {
   return request({
     url: '/product/page',
     method: 'get',

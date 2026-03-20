@@ -42,3 +42,13 @@ export function deleteProfit(id) {
     method: 'delete'
   })
 }
+
+/**
+ * 手动计算单条记录指标
+ */
+export function calculateSingleRecord(productId, recordId) {
+  return request({
+    url: `/profit/calculate/${productId}/${recordId}`,
+    method: 'post'
+  })
+}

@@ -34,10 +34,32 @@
         </template>
       </el-table-column>
       <el-table-column prop="recordDate" label="记录日期" width="120"></el-table-column>
-      <el-table-column label="操作" width="180">
-        <template #default="scope">
-          <el-button type="primary" size="small" @click="toForm(scope.row.id)">编辑</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+    <el-table-column prop="transactionType" label="交易类型" width="100"></el-table-column>
+    <el-table-column prop="transactionAmount" label="申赎金额" width="120">
+      <template #default="scope">
+        {{ formatMoney(scope.row.transactionAmount) }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="annualizedReturn" label="年化收益率(%)" width="120">
+      <template #default="scope">
+        {{ scope.row.annualizedReturn || 0 }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="maxDrawdown" label="最大回撤(%)" width="100">
+      <template #default="scope">
+        {{ scope.row.maxDrawdown || 0 }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="sharpeRatio" label="夏普比率" width="100">
+      <template #default="scope">
+        {{ scope.row.sharpeRatio || 0 }}
+      </template>
+    </el-table-column>
+    <el-table-column label="操作" width="220">
+      <template #default="scope">
+        <el-button type="primary" size="small" @click="toForm(scope.row.id)">编辑</el-button>
+        <el-button type="info" size="small" @click="calculateRecord(scope.row.productId, scope.row.id)">计算指标</el-button>
+        <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -65,7 +87,19 @@ import { Plus } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { getProfitPage, deleteProfit } from '@/api/profit'
 import { formatMoney } from '@/utils'
+import { calculateSingleRecord } from '@/api/profit'
 
+// 手动计算单条记录指标
+const calculateRecord = (productId, recordId) => {
+  ElMessageBox.confirm('确定要重新计算该记录的指标吗？', '提示', {
+    type: 'info'
+  }).then(() => {
+    calculateSingleRecord(productId, recordId).then(() => {
+      ElMessage.success('计算成功')
+      getList()
+    })
+  })
+}
 const router = useRouter()
 const route = useRoute()
 

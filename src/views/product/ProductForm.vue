@@ -70,6 +70,42 @@
         </el-select>
       </el-form-item>
 
+  <el-row :gutter="20">
+    <el-col :span="12">
+      <el-form-item label="综合费率(%)" prop="feeRate">
+        <el-input v-model="form.feeRate" type="number" step="0.01" placeholder="请输入综合费率"></el-input>
+      </el-form-item>
+    </el-col>
+    <el-col :span="12">
+      <el-form-item label="流动性" prop="liquidity">
+        <el-select v-model="form.liquidity" placeholder="请选择流动性">
+          <el-option label="高" value="高"></el-option>
+          <el-option label="中" value="中"></el-option>
+          <el-option label="低" value="低"></el-option>
+        </el-select>
+      </el-form-item>
+    </el-col>
+  </el-row>
+
+  <!-- 以下为只读字段（由系统计算） -->
+  <el-row :gutter="20">
+    <el-col :span="8">
+      <el-form-item label="累计年化收益率(%)">
+        <el-input v-model="form.annualizedReturn" disabled placeholder="系统自动计算"></el-input>
+      </el-form-item>
+    </el-col>
+    <el-col :span="8">
+      <el-form-item label="最大回撤(%)">
+        <el-input v-model="form.maxDrawdown" disabled placeholder="系统自动计算"></el-input>
+      </el-form-item>
+    </el-col>
+    <el-col :span="8">
+      <el-form-item label="夏普比率">
+        <el-input v-model="form.sharpeRatio" disabled placeholder="系统自动计算"></el-input>
+      </el-form-item>
+    </el-col>
+  </el-row>
+
       <el-form-item style="text-align: center">
         <el-button type="primary" @click="submitForm">提交</el-button>
         <el-button @click="resetForm">重置</el-button>
@@ -92,7 +128,7 @@ const formRef = ref(null)
 // 判断是否编辑
 const isEdit = ref(!!route.params.id)
 
-// 表单数据
+// 表单数据新增字段
 const form = reactive({
   id: '',
   name: '',
@@ -101,18 +137,25 @@ const form = reactive({
   riskLevel: '',
   investAmount: '',
   buyDate: '',
-  status: '持有'
+  status: '持有',
+  annualizedReturn: '', // 只读
+  maxDrawdown: '',      // 只读
+  liquidity: '',        // 手动输入
+  sharpeRatio: '',      // 只读
+  feeRate: ''           // 手动输入
 })
 
-// 表单校验规则
+// 表单校验规则新增
 const rules = reactive({
   name: [{ required: true, message: '请输入产品名称', trigger: 'blur' }],
   type: [{ required: true, message: '请输入产品类型', trigger: 'blur' }],
   investAmount: [{ required: true, message: '请输入购买金额', trigger: 'blur' }],
-  buyDate: [{ required: true, message: '请选择购买日期', trigger: 'change' }]
+  buyDate: [{ required: true, message: '请选择购买日期', trigger: 'change' }],
+  feeRate: [{ pattern: /^(\d+\.?\d{0,4})$/, message: '费率最多保留4位小数', trigger: 'blur' }],
+  liquidity: [{ required: true, message: '请选择流动性', trigger: 'change' }]
 })
 
-// 获取详情（编辑模式）
+// 原有getDetail方法中新增字段赋值
 const getDetail = () => {
   getProductById(route.params.id).then(res => {
     form.id = res.id
@@ -123,6 +166,11 @@ const getDetail = () => {
     form.investAmount = res.investAmount
     form.buyDate = res.buyDate
     form.status = res.status
+    form.annualizedReturn = res.annualizedReturn
+    form.maxDrawdown = res.maxDrawdown
+    form.liquidity = res.liquidity
+    form.sharpeRatio = res.sharpeRatio
+    form.feeRate = res.feeRate
   })
 }
 

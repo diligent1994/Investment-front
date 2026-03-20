@@ -16,3 +16,14 @@ export function getIncomeTrend(params) {
     params
   })
 }
+
+/**
+ * 产品多指标趋势（收益+年化+最大回撤+夏普比率）
+ */
+export function getMultiIndicatorTrend(params) {
+  return request({
+    url: '/reports/multi-indicator-trend',
+    method: 'get',
+    params
+  })
+}

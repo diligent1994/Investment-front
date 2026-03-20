@@ -40,7 +40,28 @@
       </el-table-column>
       <el-table-column prop="buyDate" label="购买日期" width="120"></el-table-column>
       <el-table-column prop="status" label="状态" width="100"></el-table-column>
-      <el-table-column label="操作" width="200">
+    <el-table-column prop="annualizedReturn" label="年化收益率(%)" width="120">
+      <template #default="scope">
+        {{ scope.row.annualizedReturn || 0 }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="maxDrawdown" label="最大回撤(%)" width="100">
+      <template #default="scope">
+        {{ scope.row.maxDrawdown || 0 }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="sharpeRatio" label="夏普比率" width="100">
+      <template #default="scope">
+        {{ scope.row.sharpeRatio || 0 }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="feeRate" label="费率(%)" width="100">
+      <template #default="scope">
+        {{ scope.row.feeRate || 0 }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="liquidity" label="流动性" width="100"></el-table-column>
+      <el-table-column label="操作" width="220">
         <template #default="scope">
           <el-button type="primary" size="small" @click="toForm(scope.row.id)">编辑</el-button>
           <el-button type="warning" size="small" @click="toProfit(scope.row.id)">收益记录</el-button>
