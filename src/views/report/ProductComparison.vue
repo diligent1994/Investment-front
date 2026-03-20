@@ -1,0 +1,136 @@
+<template>
+  <div class="product-comparison">
+    <PageHeader title="理财产品收益对比">
+      <template #action>
+        <el-button @click="refreshData">刷新数据</el-button>
+        <el-button type="primary" @click="toTrend">查看收益曲线</el-button>
+      </template>
+    </PageHeader>
+
+    <ChartCard title="产品总收益对比" :option="chartOption"></ChartCard>
+
+    <!-- 数据表格 -->
+    <el-table :data="tableData" border stripe style="width: 100%; margin-top: 20px">
+      <el-table-column prop="productId" label="产品ID" width="80"></el-table-column>
+      <el-table-column prop="productName" label="产品名称" min-width="150"></el-table-column>
+      <el-table-column prop="purchaseAmount" label="购买金额" width="120">
+        <template #default="scope">
+          {{ formatMoney(scope.row.purchaseAmount) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="totalIncome" label="总收益" width="120">
+        <template #default="scope">
+          {{ formatMoney(scope.row.totalIncome) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="incomeRate" label="总收益率(%)" width="120">
+        <template #default="scope">
+          {{ ((scope.row.totalIncome / scope.row.purchaseAmount) * 100).toFixed(2) || 0 }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="120">
+        <template #default="scope">
+          <el-button type="text" @click="selectProduct(scope.row.productId)">查看曲线</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useMainStore } from '@/stores'
+import PageHeader from '@/components/PageHeader.vue'
+import ChartCard from '@/components/ChartCard.vue'
+import { getProductComparison } from '@/api/report'
+import { formatMoney } from '@/utils'
+
+const router = useRouter()
+const mainStore = useMainStore()
+
+// 图表配置
+const chartOption = ref({
+  title: {
+    text: '产品总收益对比',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  legend: {
+    bottom: 0
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '15%',
+    top: '10%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: []
+  },
+  yAxis: {
+    type: 'value',
+    name: '金额（元）'
+  },
+  series: [
+    {
+      name: '购买金额',
+      type: 'bar',
+      data: [],
+      itemStyle: { color: '#409eff' }
+    },
+    {
+      name: '总收益',
+      type: 'bar',
+      data: [],
+      itemStyle: { color: '#67c23a' }
+    }
+  ]
+})
+
+// 表格数据
+const tableData = ref([])
+
+// 获取对比数据
+const getComparisonData = () => {
+  getProductComparison().then(res => {
+    tableData.value = res
+    // 更新图表数据
+    chartOption.value.xAxis.data = res.map(item => item.productName)
+    chartOption.value.series[0].data = res.map(item => Number(item.purchaseAmount))
+    chartOption.value.series[1].data = res.map(item => Number(item.totalIncome))
+  })
+}
+
+// 刷新数据
+const refreshData = () => {
+  getComparisonData()
+}
+
+// 选择产品查看曲线
+const selectProduct = (productId) => {
+  mainStore.setCurrentProductId(productId)
+  router.push({ name: 'IncomeTrend', params: { productId } })
+}
+
+// 跳转到收益曲线页面
+const toTrend = () => {
+  if (tableData.value.length > 0) {
+    const firstProductId = tableData.value[0].productId
+    router.push({ name: 'IncomeTrend', params: { productId: firstProductId } })
+  } else {
+    ElMessage.warning('暂无产品数据')
+  }
+}
+
+onMounted(() => {
+  getComparisonData()
+})
+</script>
