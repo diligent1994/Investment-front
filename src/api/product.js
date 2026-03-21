@@ -46,3 +46,11 @@ export function getProductList() {
     params: { pageNum: 1, pageSize: 999 }
   }).then(res => res.records)
 }
+
+// 新增：计算产品指标
+export function calculateIndicators(productId) {
+  return request({
+    url: `/product/calculate-indicators/${productId}`,
+    method: 'post'
+  })
+}

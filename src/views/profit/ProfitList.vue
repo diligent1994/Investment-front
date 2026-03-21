@@ -3,7 +3,9 @@
     <PageHeader title="收益记录管理">
       <template #action>
         <el-button type="primary" @click="toForm()">
-          <el-icon><Plus /></el-icon> 新增记录
+          <el-icon>
+            <Plus />
+          </el-icon> 新增记录
         </el-button>
       </template>
     </PageHeader>
@@ -23,6 +25,33 @@
     <el-table :data="tableData" border stripe style="width: 100%">
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column prop="productId" label="产品ID" width="100"></el-table-column>
+      <el-table-column prop="totalAmount" label="持仓总市值" width="120">
+        <template #default="scope">
+          {{ formatMoney(scope.row.totalAmount) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="recordDate" label="记录日期" width="120"></el-table-column>
+      <el-table-column prop="transactionType" label="交易类型" width="100"></el-table-column>
+      <el-table-column prop="annualizedReturn" label="年化收益率(%)" width="120">
+        <template #default="scope">
+          {{ scope.row.annualizedReturn || 0 }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="maxDrawdown" label="最大回撤(%)" width="100">
+        <template #default="scope">
+          {{ scope.row.maxDrawdown || 0 }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="sharpeRatio" label="夏普比率" width="100">
+        <template #default="scope">
+          {{ scope.row.sharpeRatio || 0 }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="transactionAmount" label="申赎金额" width="120">
+        <template #default="scope">
+          {{ formatMoney(scope.row.transactionAmount) }}
+        </template>
+      </el-table-column>
       <el-table-column prop="profitAmount" label="收益金额" width="120">
         <template #default="scope">
           {{ formatMoney(scope.row.profitAmount) }}
@@ -33,48 +62,20 @@
           {{ scope.row.profitRate || 0 }}
         </template>
       </el-table-column>
-      <el-table-column prop="recordDate" label="记录日期" width="120"></el-table-column>
-    <el-table-column prop="transactionType" label="交易类型" width="100"></el-table-column>
-    <el-table-column prop="transactionAmount" label="申赎金额" width="120">
-      <template #default="scope">
-        {{ formatMoney(scope.row.transactionAmount) }}
-      </template>
-    </el-table-column>
-    <el-table-column prop="annualizedReturn" label="年化收益率(%)" width="120">
-      <template #default="scope">
-        {{ scope.row.annualizedReturn || 0 }}
-      </template>
-    </el-table-column>
-    <el-table-column prop="maxDrawdown" label="最大回撤(%)" width="100">
-      <template #default="scope">
-        {{ scope.row.maxDrawdown || 0 }}
-      </template>
-    </el-table-column>
-    <el-table-column prop="sharpeRatio" label="夏普比率" width="100">
-      <template #default="scope">
-        {{ scope.row.sharpeRatio || 0 }}
-      </template>
-    </el-table-column>
-    <el-table-column label="操作" width="220">
-      <template #default="scope">
-        <el-button type="primary" size="small" @click="toForm(scope.row.id)">编辑</el-button>
-        <el-button type="info" size="small" @click="calculateRecord(scope.row.productId, scope.row.id)">计算指标</el-button>
-        <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+      <el-table-column label="操作" width="220">
+        <template #default="scope">
+          <el-button type="primary" size="small" @click="toForm(scope.row.id)">编辑</el-button>
+          <el-button type="info" size="small"
+            @click="calculateRecord(scope.row.productId, scope.row.id)">计算指标</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <!-- 分页 -->
-    <el-pagination
-      v-model:current-page="pageNum"
-      v-model:page-size="pageSize"
-      :page-sizes="[10, 20, 50, 100]"
-      :total="total"
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="getList"
-      @current-change="getList"
-      style="margin-top: 20px; text-align: right"
-    >
+    <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
+      :total="total" layout="total, sizes, prev, pager, next, jumper" @size-change="getList" @current-change="getList"
+      style="margin-top: 20px; text-align: right">
     </el-pagination>
   </div>
 </template>
@@ -134,8 +135,8 @@ const resetSearch = () => {
 
 // 跳转到表单页
 const toForm = (id) => {
-  router.push({ 
-    name: 'ProfitForm', 
+  router.push({
+    name: 'ProfitForm',
     params: { id },
     query: { productId: searchForm.productId }
   })

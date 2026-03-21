@@ -34,13 +34,8 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="收益金额" prop="profitAmount">
-            <el-input v-model="form.profitAmount" type="number" step="0.01" placeholder="请输入收益金额"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="收益率(%)" prop="profitRate">
-            <el-input v-model="form.profitRate" type="number" step="0.01" placeholder="请输入收益率"></el-input>
+          <el-form-item label="持仓总市值" prop="totalAmount">
+            <el-input v-model="form.totalAmount" type="number" step="0.01" placeholder="请输入持仓总市值"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -69,6 +64,11 @@
 
   <!-- 只读指标字段 -->
   <el-row :gutter="20">
+    <el-col :span="8">
+          <el-form-item label="收益率(%)" prop="profitRate">
+            <el-input v-model="form.profitRate" disabled placeholder="系统自动计算"></el-input>
+          </el-form-item>
+    </el-col>
     <el-col :span="8">
       <el-form-item label="年化收益率(%)">
         <el-input v-model="form.annualizedReturn" disabled placeholder="系统自动计算"></el-input>
@@ -112,7 +112,7 @@ const isEdit = ref(!!route.params.id)
 const form = reactive({
   id: '',
   productId: route.query.productId || '',
-  profitAmount: '',
+  totalAmount: '',
   profitRate: '',
   recordDate: '',
   transactionType: '收益更新', // 默认为收益更新
@@ -125,7 +125,7 @@ const form = reactive({
 // 表单校验规则新增
 const rules = reactive({
   productId: [{ required: true, message: '请输入产品ID', trigger: 'blur' }],
-  profitAmount: [{ required: true, message: '请输入收益金额', trigger: 'blur' }],
+  totalAmount: [{ required: true, message: '请输入收益金额', trigger: 'blur' }],
   recordDate: [{ required: true, message: '请选择记录日期', trigger: 'change' }],
   transactionType: [{ required: true, message: '请选择交易类型', trigger: 'change' }],
   transactionAmount: [{ required: true, message: '请输入申赎金额', trigger: 'blur' }]
@@ -136,7 +136,7 @@ const getDetail = () => {
   getProfitById(route.params.id).then(res => {
     form.id = res.id
     form.productId = res.productId
-    form.profitAmount = res.profitAmount
+    form.totalAmount = res.totalAmount
     form.profitRate = res.profitRate
     form.recordDate = res.recordDate
     form.transactionType = res.transactionType
