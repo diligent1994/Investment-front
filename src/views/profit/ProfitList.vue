@@ -22,16 +22,16 @@
     </el-form>
 
     <!-- 表格 -->
-    <el-table :data="tableData" border stripe style="width: 100%">
+    <el-table :data="tableData" border stripe style="width: 100%" @sort-change="handleSortChange">
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="productId" label="产品ID" width="100"></el-table-column>
-      <el-table-column prop="totalAmount" label="持仓总市值" width="120">
+      <el-table-column prop="productId" label="产品ID" width="100" sortable="custom"></el-table-column>
+      <el-table-column prop="totalAmount" label="持仓总市值" width="120" sortable="custom">
         <template #default="scope">
           {{ formatMoney(scope.row.totalAmount) }}
         </template>
       </el-table-column>
-      <el-table-column prop="recordDate" label="记录日期" width="120"></el-table-column>
-      <el-table-column prop="transactionType" label="交易类型" width="100"></el-table-column>
+      <el-table-column prop="recordDate" label="记录日期" width="120" sortable="custom"></el-table-column>
+      <el-table-column prop="transactionType" label="交易类型" width="100" sortable="custom"></el-table-column>
       <el-table-column prop="annualizedReturn" label="年化收益率(%)" width="120">
         <template #default="scope">
           {{ scope.row.annualizedReturn || 0 }}
@@ -109,18 +109,30 @@ const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const tableData = ref([])
+// 新增：排序参数（前端字段名）
+const sortField = ref('')  // 排序字段（前端prop名，如name、investAmount）
+const sortOrder = ref('')  // 排序方向：asc/desc
 
 // 搜索表单
 const searchForm = reactive({
   productId: route.query.productId || ''
 })
 
+// 新增：处理排序变化
+const handleSortChange = (val) => {
+  sortField.value = val.prop  // 直接取前端prop名称
+  sortOrder.value = val.order === 'ascending' ? 'asc' : val.order === 'descending' ? 'desc' : ''
+  getList()  // 排序变化后重新查询列表
+}
+
 // 获取列表数据
 const getList = () => {
   getProfitPage({
     pageNum: pageNum.value,
     pageSize: pageSize.value,
-    productId: searchForm.productId
+    productId: searchForm.productId,
+    sortField: sortField.value,  // 传前端字段名
+    sortOrder: sortOrder.value   // 传排序方向
   }).then(res => {
     tableData.value = res.records
     total.value = res.total
@@ -130,6 +142,8 @@ const getList = () => {
 // 重置搜索
 const resetSearch = () => {
   searchForm.productId = ''
+  sortField.value = ''  // 重置排序字段
+  sortOrder.value = ''  // 重置排序方向
   getList()
 }
 

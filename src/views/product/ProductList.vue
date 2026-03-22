@@ -25,28 +25,28 @@
     </el-form>
 
     <!-- 表格 -->
-    <el-table :data="tableData" border stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
+    <el-table :data="tableData" border stripe style="width: 100%" @sort-change="handleSortChange">
+      <el-table-column prop="id" label="ID" width="80"sortable="custom"></el-table-column>
       <el-table-column prop="name" label="产品名称" min-width="150"></el-table-column>
-      <el-table-column prop="type" label="产品类型" width="120"></el-table-column>
-      <el-table-column prop="investAmount" label="购买金额" width="120">
+      <el-table-column prop="type" label="产品类型" width="120" sortable="custom"></el-table-column>
+      <el-table-column prop="investAmount" label="购买金额" width="120" sortable="custom">
         <template #default="scope">
           {{ formatMoney(scope.row.investAmount) }}
         </template>
       </el-table-column>
-      <el-table-column prop="buyDate" label="购买日期" width="120"></el-table-column>
-      <el-table-column prop="status" label="状态" width="100"></el-table-column>
-      <el-table-column prop="annualizedReturn" label="年化收益率(%)" width="120">
+      <el-table-column prop="buyDate" label="购买日期" width="120" sortable="custom"></el-table-column>
+      <el-table-column prop="status" label="状态" width="100" sortable="custom"></el-table-column>
+      <el-table-column prop="annualizedReturn" label="年化收益率(%)" width="120" sortable="custom">
         <template #default="scope">
           {{ scope.row.annualizedReturn || 0 }}
         </template>
       </el-table-column>
-      <el-table-column prop="maxDrawdown" label="最大回撤(%)" width="100">
+      <el-table-column prop="maxDrawdown" label="最大回撤(%)" width="100" sortable="custom">
         <template #default="scope">
           {{ scope.row.maxDrawdown || 0 }}
         </template>
       </el-table-column>
-      <el-table-column prop="sharpeRatio" label="夏普比率" width="100">
+      <el-table-column prop="sharpeRatio" label="夏普比率" width="100" sortable="custom">
         <template #default="scope">
           {{ scope.row.sharpeRatio || 0 }}
         </template>
@@ -56,8 +56,8 @@
           {{ scope.row.expectedYield || 0 }}
         </template>
       </el-table-column>
-      <el-table-column prop="riskLevel" label="风险等级" width="100"></el-table-column>
-      <el-table-column prop="feeRate" label="费率(%)" width="100">
+      <el-table-column prop="riskLevel" label="风险等级" width="100" sortable="custom"></el-table-column>
+      <el-table-column prop="feeRate" label="费率(%)" width="100" sortable="custom">
         <template #default="scope">
           {{ scope.row.feeRate || 0 }}
         </template>
@@ -97,6 +97,9 @@ const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const tableData = ref([])
+// 新增：排序参数（前端字段名）
+const sortField = ref('')  // 排序字段（前端prop名，如name、investAmount）
+const sortOrder = ref('')  // 排序方向：asc/desc
 
 // 搜索表单
 const searchForm = reactive({
@@ -104,13 +107,22 @@ const searchForm = reactive({
   type: ''
 })
 
+// 新增：处理排序变化
+const handleSortChange = (val) => {
+  sortField.value = val.prop  // 直接取前端prop名称
+  sortOrder.value = val.order === 'ascending' ? 'asc' : val.order === 'descending' ? 'desc' : ''
+  getList()  // 排序变化后重新查询列表
+}
+
 // 获取列表数据
 const getList = () => {
   getProductPage({
     pageNum: pageNum.value,
     pageSize: pageSize.value,
     name: searchForm.name,
-    type: searchForm.type
+    type: searchForm.type,
+    sortField: sortField.value,  // 传前端字段名
+    sortOrder: sortOrder.value   // 传排序方向
   }).then(res => {
     tableData.value = res.records
     total.value = res.total
@@ -121,6 +133,8 @@ const getList = () => {
 const resetSearch = () => {
   searchForm.name = ''
   searchForm.type = ''
+  sortField.value = ''  // 重置排序字段
+  sortOrder.value = ''  // 重置排序方向
   getList()
 }
 
