@@ -1,13 +1,13 @@
 # 第一阶段：构建（可选，如果已经在本地构建好了 dist，可以跳过）
-# FROM node:18-alpine AS builder
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# RUN npm run build
+FROM registry.cn-hangzhou.aliyuncs.com/docker-library/node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
 # 第二阶段：使用 nginx 提供静态服务
-FROM nginx:alpine
+FROM registry.cn-hangzhou.aliyuncs.com/docker-library/nginx:alpine
 # 删除Nginx默认首页
 RUN rm -rf /usr/share/nginx/html/*
 # 把本地dist目录的静态文件复制到Nginx默认静态目录
