@@ -62,7 +62,7 @@
           {{ scope.row.profitRate || 0 }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="220" fixed="right">
         <template #default="scope">
           <el-button type="primary" size="small" @click="toForm(scope.row.id)">编辑</el-button>
           <el-button type="info" size="small"
@@ -110,8 +110,8 @@ const pageSize = ref(10)
 const total = ref(0)
 const tableData = ref([])
 // 新增：排序参数（前端字段名）
-const sortField = ref('')  // 排序字段（前端prop名，如name、investAmount）
-const sortOrder = ref('')  // 排序方向：asc/desc
+const sortField = ref('recordDate')  // 排序字段（前端prop名，如name、investAmount）
+const sortOrder = ref('desc')  // 排序方向：asc/desc
 
 // 搜索表单
 const searchForm = reactive({
@@ -142,8 +142,8 @@ const getList = () => {
 // 重置搜索
 const resetSearch = () => {
   searchForm.productId = ''
-  sortField.value = ''  // 重置排序字段
-  sortOrder.value = ''  // 重置排序方向
+  sortField.value = 'recordDate'  // 重置为按记录日期排序
+  sortOrder.value = 'desc'  // 重置为倒序（最新在前）
   getList()
 }
 

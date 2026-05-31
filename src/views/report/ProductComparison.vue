@@ -28,7 +28,7 @@
           {{ ((scope.row.totalIncome / scope.row.purchaseAmount) * 100).toFixed(2) || 0 }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="120">
+      <el-table-column label="操作" width="120" fixed="right">
         <template #default="scope">
           <el-button type="text" @click="selectProduct(scope.row.productId)">查看曲线</el-button>
         </template>

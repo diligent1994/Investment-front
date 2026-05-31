@@ -100,6 +100,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import PageHeader from '@/components/PageHeader.vue'
 import { getProfitById, addProfit, updateProfit } from '@/api/profit'
+import { formatDate } from '@/utils'
 
 const router = useRouter()
 const route = useRoute()
@@ -114,7 +115,7 @@ const form = reactive({
   productId: route.query.productId || '',
   totalAmount: '',
   profitRate: '',
-  recordDate: '',
+  recordDate: formatDate(new Date()),
   transactionType: '收益更新', // 默认为收益更新
   transactionAmount: 0,        // 默认为0
   annualizedReturn: '',        // 只读
@@ -169,6 +170,9 @@ const submitForm = () => {
 // 重置表单
 const resetForm = () => {
   formRef.value.resetFields()
+  if (!isEdit.value) {
+    form.recordDate = formatDate(new Date())
+  }
 }
 
 // 返回列表页

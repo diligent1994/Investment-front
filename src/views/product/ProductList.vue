@@ -63,10 +63,11 @@
         </template>
       </el-table-column>
       <el-table-column prop="liquidity" label="流动性" width="100"></el-table-column>
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="220" fixed="right">
         <template #default="scope">
           <el-button type="primary" size="small" @click="toForm(scope.row.id)">编辑</el-button>
           <el-button type="warning" size="small" @click="calculate(scope.row.id)">计算指标</el-button>
+          <el-button type="success" size="small" @click="toAddRecord(scope.row.id)">新增记录</el-button>
           <el-button type="warning" size="small" @click="toProfit(scope.row.id)">收益记录</el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
         </template>
@@ -98,8 +99,8 @@ const pageSize = ref(10)
 const total = ref(0)
 const tableData = ref([])
 // 新增：排序参数（前端字段名）
-const sortField = ref('')  // 排序字段（前端prop名，如name、investAmount）
-const sortOrder = ref('')  // 排序方向：asc/desc
+const sortField = ref('type')  // 排序字段（前端prop名，如name、investAmount）
+const sortOrder = ref('asc')  // 排序方向：asc/desc
 
 // 搜索表单
 const searchForm = reactive({
@@ -133,14 +134,19 @@ const getList = () => {
 const resetSearch = () => {
   searchForm.name = ''
   searchForm.type = ''
-  sortField.value = ''  // 重置排序字段
-  sortOrder.value = ''  // 重置排序方向
+  sortField.value = 'type'  // 重置为按产品类型排序
+  sortOrder.value = 'asc'  // 重置为升序
   getList()
 }
 
 // 跳转到表单页
 const toForm = (id) => {
   router.push({ name: 'ProductForm', params: { id } })
+}
+
+// 跳转到新增收益记录表单（传 productId）
+const toAddRecord = (productId) => {
+  router.push({ name: 'ProfitForm', query: { productId } })
 }
 
 // 新增：计算产品指标
